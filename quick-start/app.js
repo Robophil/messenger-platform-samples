@@ -34,17 +34,16 @@ app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'))
 // Accepts POST requests at /webhook endpoint
 app.post('/webhook', (req, res) => {
   // Parse the request body from the POST
-  let body = req.body
+  const { body } = req
 
   // Check the webhook event is from a Page subscription
   if (body.object === 'page') {
-    body.entry.forEach(function (entry) {
+    body.entry.forEach(entry => {
       // Gets the body of the webhook event
-      let webhookEvent = entry.messaging[0]
-      console.log(webhookEvent)
+      const webhookEvent = entry.messaging[0]
 
       // Get the sender PSID
-      let senderPsid = webhookEvent.sender.id
+      const senderPsid = webhookEvent.sender.id
       console.log('Sender ID: ' + senderPsid)
 
       // Check if the event is a message or postback and
@@ -55,6 +54,7 @@ app.post('/webhook', (req, res) => {
         handlePostback(senderPsid, webhookEvent.postback)
       }
     })
+
     // Return a '200 OK' response to all events
     res.status(200).send('EVENT_RECEIVED')
   } else {
@@ -69,9 +69,9 @@ app.get('/webhook', (req, res) => {
   const VERIFY_TOKEN = '<YOUR VERIFY TOKEN>'
 
   // Parse params from the webhook verification request
-  let mode = req.query['hub.mode']
-  let token = req.query['hub.verify_token']
-  let challenge = req.query['hub.challenge']
+  const mode = req.query['hub.mode']
+  const token = req.query['hub.verify_token']
+  const challenge = req.query['hub.challenge']
 
   // Check if a token and mode were sent
   if (mode && token) {
@@ -87,7 +87,10 @@ app.get('/webhook', (req, res) => {
   }
 })
 
-function handleMessage (senderPsid, receivedMessage) {
+/**
+ * Handle message events
+ */
+const handleMessage = (senderPsid, receivedMessage) => {
   let response
 
   // Checks if the message contains text
@@ -131,8 +134,7 @@ function handleMessage (senderPsid, receivedMessage) {
   callSendAPI(senderPsid, response)
 }
 
-function handlePostback (senderPsid, receivedPostback) {
-  console.log('ok')
+const handlePostback = (senderPsid, receivedPostback) => {
   let response
   // Get the payload for the postback
   let payload = receivedPostback.payload
